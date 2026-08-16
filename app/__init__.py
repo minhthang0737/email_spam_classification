@@ -1,13 +1,17 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
-from app.config import Config
+db = SQLAlchemy()
 
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
 
-    from app.api.health import health_bp
-    app.register_blueprint(health_bp, url_prefix="/api")
+    app.config.from_object("app.config.Config")
+
+    db.init_app(app)
+
+    from app.api.dataset import dataset_bp
+    app.register_blueprint(dataset_bp)
 
     return app
