@@ -14,4 +14,7 @@ def create_app():
     from app.api.dataset import dataset_bp
     app.register_blueprint(dataset_bp)
 
+    from app.api.model import model_bp
+    app.register_blueprint(model_bp)
+    
     return app
