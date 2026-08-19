@@ -17,7 +17,7 @@ dataset_bp = Blueprint(
 
 @dataset_bp.get("")
 def get_dataset():
-    logger.info("Prediction completed")
+    logger.info("Fetching dataset list")
     datasets = (
         EmailDataset.query
         .order_by(EmailDataset.id.desc())

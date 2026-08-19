@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Email Spam Classification{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>Hệ thống Phân loại Email Spam</h1>
+            <nav class="nav">
+                <a href="{{ url_for('views.index') }}">Phân loại</a>
+                <a href="{{ url_for('views.history') }}">Lịch sử</a>
+                <a href="{{ url_for('views.admin_dataset') }}">Admin Dataset</a>
+                <a href="{{ url_for('views.admin_model') }}">Admin Model</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

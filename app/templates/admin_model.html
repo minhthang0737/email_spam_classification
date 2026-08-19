@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+    <h2>Thông tin Model</h2>
+    <div class="actions">
+        <button id="train-btn" type="button">Train Model</button>
+        <button id="refresh-btn" type="button" class="secondary">Làm mới</button>
+    </div>
+    <div id="model-info" class="model-info">
+        <p><strong>Model:</strong> <span id="model-name">-</span></p>
+        <p><strong>Version:</strong> <span id="model-version">-</span></p>
+        <p><strong>Accuracy:</strong> <span id="model-accuracy">-</span></p>
+        <p><strong>Precision:</strong> <span id="model-precision">-</span></p>
+        <p><strong>Recall:</strong> <span id="model-recall">-</span></p>
+        <p><strong>F1 Score:</strong> <span id="model-f1">-</span></p>
+        <p><strong>Trained At:</strong> <span id="model-trained">-</span></p>
+        <p><strong>Active:</strong> <span id="model-active">-</span></p>
+    </div>
+    <p id="train-message" class="success hidden"></p>
+    <p id="error-message" class="error hidden"></p>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_model.js') }}"></script>
+{% endblock %}

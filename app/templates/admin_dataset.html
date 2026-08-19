@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+    <h2>Quản lý Dataset</h2>
+    <form id="dataset-form" class="form-grid">
+        <input type="hidden" id="dataset-id">
+        <label for="dataset-email">Email</label>
+        <textarea id="dataset-email" rows="3" required></textarea>
+        <label for="dataset-label">Label</label>
+        <select id="dataset-label" required>
+            <option value="SPAM">SPAM</option>
+            <option value="NOT_SPAM">NOT_SPAM</option>
+        </select>
+        <div class="actions">
+            <button type="submit" id="dataset-save-btn">Thêm / Cập nhật</button>
+            <button type="button" id="dataset-reset-btn" class="secondary">Reset</button>
+        </div>
+    </form>
+    <table class="table" id="dataset-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Label</th>
+                <th>Created At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="dataset-body"></tbody>
+    </table>
+    <p id="error-message" class="error hidden"></p>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_dataset.js') }}"></script>
+{% endblock %}

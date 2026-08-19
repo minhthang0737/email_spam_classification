@@ -7,9 +7,9 @@ class EmailDataset(db.Model):
     __tablename__ = "email_dataset"
 
     id = db.Column(
-        db.BigInteger,
+        db.BigInteger().with_variant(db.Integer, "sqlite"),
         primary_key=True,
-        autoincrement=True
+        autoincrement=True,
     )
 
     email_content = db.Column(

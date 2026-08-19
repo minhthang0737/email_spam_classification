@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+    <h2>Phân loại Email</h2>
+    <label for="email-input">Nội dung Email:</label>
+    <textarea id="email-input" rows="8" placeholder="Nhập nội dung email cần phân loại..."></textarea>
+    <div class="actions">
+        <button id="predict-btn" type="button">Phân loại Email</button>
+        <button id="clear-btn" type="button" class="secondary">Xóa</button>
+    </div>
+    <div id="result-panel" class="result-panel hidden">
+        <p><strong>Kết quả:</strong> <span id="result-label"></span></p>
+        <p><strong>Độ tin cậy:</strong> <span id="result-confidence"></span></p>
+    </div>
+    <p id="error-message" class="error hidden"></p>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/classify.js') }}"></script>
+{% endblock %}

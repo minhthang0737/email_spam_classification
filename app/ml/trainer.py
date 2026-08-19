@@ -13,10 +13,12 @@ from sklearn.metrics import (
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 
+from app.config import Config
 from app.ml.preprocessing import preprocess_text
 
 
-MODEL_DIR = Path("saved_models")
+def _model_dir() -> Path:
+    return Path(Config.MODEL_DIR)
 
 
 def train_model(dataset):
@@ -137,17 +139,12 @@ def train_model(dataset):
     # TASK-017: Save Model
     # ==========================================
 
-    MODEL_DIR.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    model_dir = _model_dir()
+    model_dir.mkdir(parents=True, exist_ok=True)
 
     model_version = generate_model_version()
 
-    model_path = (
-        MODEL_DIR /
-        f"spam_model_{model_version}.joblib"
-    )
+    model_path = model_dir / f"spam_model_{model_version}.joblib"
 
     joblib.dump(
         {
@@ -179,6 +176,4 @@ def generate_model_version():
         20260818_191500
     """
 
-    return datetime.now().strftime(
-        "%Y%m%d_%H%M%S"
-    )
+    return datetime.now().strftime("%Y%m%d_%H%M%S_%f")

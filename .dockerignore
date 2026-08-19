@@ -1,0 +1,16 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+*.log
+.env
+*.db
+.git/
+.gitignore
+saved_models/*
+!saved_models/.gitkeep
+Task_Backlog_Email_Spam_Classification_extracted.txt
+SRS_Email_Spam_Classification_v1.1_extracted.txt
+*.docx
