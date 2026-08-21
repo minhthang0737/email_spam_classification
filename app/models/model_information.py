@@ -6,7 +6,11 @@ from app import db
 class ModelInformation(db.Model):
     __tablename__ = "model_information"
 
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(
+        db.BigInteger().with_variant(db.Integer, "sqlite"),
+        primary_key=True,
+        autoincrement=True,
+    )
 
     model_name = db.Column(
         db.String(100),

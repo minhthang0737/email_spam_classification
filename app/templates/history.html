@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+    <h2>Lịch sử phân loại</h2>
+    <table class="table" id="history-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Result</th>
+                <th>Confidence</th>
+                <th>Created At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="history-body"></tbody>
+    </table>
+    <p id="history-empty" class="muted hidden">Chưa có lịch sử phân loại.</p>
+    <p id="error-message" class="error hidden"></p>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

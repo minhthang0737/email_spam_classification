@@ -1,0 +1,142 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f6f8;
+    color: #1f2933;
+}
+
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.header {
+    background: #1e3a5f;
+    color: #fff;
+    margin-bottom: 1.5rem;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.nav {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.nav a {
+    color: #dbeafe;
+    text-decoration: none;
+}
+
+.nav a:hover {
+    text-decoration: underline;
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+textarea,
+select,
+input {
+    width: 100%;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+}
+
+button.secondary {
+    background: #64748b;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.table td.email-cell {
+    max-width: 280px;
+    word-break: break-word;
+}
+
+.result-panel {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 4px;
+    padding: 0.75rem;
+}
+
+.hidden {
+    display: none;
+}
+
+.error {
+    color: #b91c1c;
+}
+
+.success {
+    color: #15803d;
+}
+
+.muted {
+    color: #64748b;
+}
+
+.form-grid {
+    margin-bottom: 1rem;
+}
+
+.model-info p {
+    margin: 0.35rem 0;
+}
+
+.badge-spam {
+    color: #b91c1c;
+    font-weight: bold;
+}
+
+.badge-not-spam {
+    color: #15803d;
+    font-weight: bold;
+}
