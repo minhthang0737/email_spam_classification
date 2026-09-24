@@ -1,27 +1,82 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Email Spam Classification{% endblock %}</title>
+    <title>{% block title %}SpamGuard AI - Phân loại Email Spam{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap"
+        rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom Application CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
-    <header class="header">
-        <div class="container">
-            <h1>Hệ thống Phân loại Email Spam</h1>
-            <nav class="nav">
-                <a href="{{ url_for('views.index') }}">Phân loại</a>
-                <a href="{{ url_for('views.history') }}">Lịch sử</a>
-                <a href="{{ url_for('views.admin_dataset') }}">Admin Dataset</a>
-                <a href="{{ url_for('views.admin_model') }}">Admin Model</a>
+    <header class="app-header">
+        <div class="header-container">
+            <a href="{{ url_for('views.index') }}" class="brand-wrapper">
+                <div class="brand-logo-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <div class="brand-text-group">
+                    <span class="brand-title">Hệ thống Phân loại Email</span>
+                </div>
+            </a>
+
+            <nav>
+                <ul class="app-nav">
+                    <li class="nav-item">
+                        <a href="{{ url_for('views.index') }}"
+                            class="nav-link-custom {% if request.path == '/' %}active{% endif %}">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                            <span>Phân loại Email</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('views.history') }}"
+                            class="nav-link-custom {% if request.path == '/history' %}active{% endif %}">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Lịch sử</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('views.admin_dataset') }}"
+                            class="nav-link-custom {% if request.path.startswith('/admin/dataset') %}active{% endif %}">
+                            <i class="bi bi-database-fill-gear"></i>
+                            <span>Admin Dataset</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('views.admin_model') }}"
+                            class="nav-link-custom {% if request.path.startswith('/admin/model') %}active{% endif %}">
+                            <i class="bi bi-cpu-fill"></i>
+                            <span>Admin Model</span>
+                        </a>
+                    </li>
+                </ul>
             </nav>
         </div>
     </header>
-    <main class="container">
+
+    <main class="main-content">
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/common.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
+
 </html>

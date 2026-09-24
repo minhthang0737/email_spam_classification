@@ -28,14 +28,25 @@ function formatDate(value) {
     if (!value) {
         return "-";
     }
-    return new Date(value).toLocaleString();
+    const d = new Date(value);
+    if (isNaN(d.getTime())) {
+        return value;
+    }
+    return d.toLocaleString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+    });
 }
 
 function showError(element, message) {
     if (!element) {
         return;
     }
-    element.textContent = message;
+    element.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> <span>${message}</span>`;
     element.classList.remove("hidden");
 }
 
@@ -43,6 +54,6 @@ function hideError(element) {
     if (!element) {
         return;
     }
-    element.textContent = "";
+    element.innerHTML = "";
     element.classList.add("hidden");
 }

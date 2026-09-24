@@ -1,24 +1,114 @@
 {% extends "base.html" %}
+
+{% block title %}SpamGuard AI - Lịch sử Phân loại Email{% endblock %}
+
 {% block content %}
-<section class="card">
-    <h2>Lịch sử phân loại</h2>
-    <table class="table" id="history-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Email</th>
-                <th>Result</th>
-                <th>Confidence</th>
-                <th>Created At</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="history-body"></tbody>
-    </table>
-    <p id="history-empty" class="muted hidden">Chưa có lịch sử phân loại.</p>
-    <p id="error-message" class="error hidden"></p>
+<div class="page-header-block">
+    <div class="page-badge">
+        <i class="bi bi-clock-history"></i>
+        <span>Nhật ký Dự đoán</span>
+    </div>
+    <h1 class="page-title">Lịch Sử Phân Loại Email</h1>
+</div>
+
+<!-- Metrics Overview Cards -->
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-card-top">
+            <span class="metric-card-caption">Tổng Lượt Quét</span>
+            <div class="metric-card-icon">
+                <i class="bi bi-bar-chart-fill"></i>
+            </div>
+        </div>
+        <div class="metric-card-value" id="history-stat-total">0</div>
+        <div class="metric-card-sub">Lượt phân loại ghi nhận</div>
+    </div>
+
+    <div class="metric-card spam-metric">
+        <div class="metric-card-top">
+            <span class="metric-card-caption">Thư Rác (Spam)</span>
+            <div class="metric-card-icon">
+                <i class="bi bi-shield-x"></i>
+            </div>
+        </div>
+        <div class="metric-card-value text-danger" id="history-stat-spam">0</div>
+        <div class="metric-card-sub">Phát hiện độc hại / rác</div>
+    </div>
+
+    <div class="metric-card safe-metric">
+        <div class="metric-card-top">
+            <span class="metric-card-caption">Thư An Toàn (Ham)</span>
+            <div class="metric-card-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+        </div>
+        <div class="metric-card-value text-success" id="history-stat-safe">0</div>
+        <div class="metric-card-sub">Nội dung bình thường</div>
+    </div>
+
+    <div class="metric-card warning-metric">
+        <div class="metric-card-top">
+            <span class="metric-card-caption">Tỷ Lệ Spam</span>
+            <div class="metric-card-icon">
+                <i class="bi bi-percent"></i>
+            </div>
+        </div>
+        <div class="metric-card-value text-warning" id="history-stat-rate">0%</div>
+        <div class="metric-card-sub">Chiếm tổng số lượt quét</div>
+    </div>
+</div>
+
+<section class="card" style="padding: 0; overflow: hidden;">
+    <div class="table-toolbar-bar">
+        <div class="table-search-box">
+            <i class="bi bi-search"></i>
+            <input type="search" id="history-search-input" placeholder="Tìm kiếm theo nội dung email...">
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <select id="history-filter-select"
+                style="width: auto; height: 38px; margin-bottom: 0; font-size: 0.85rem; padding: 0.35rem 0.85rem;">
+                <option value="ALL">Tất cả kết quả</option>
+                <option value="SPAM">Chỉ hiển thị SPAM</option>
+                <option value="NOT_SPAM">Chỉ hiển thị NOT_SPAM</option>
+            </select>
+            <button type="button" id="history-refresh-btn" class="secondary"
+                style="height: 38px; padding: 0.35rem 0.85rem; font-size: 0.85rem;">
+                <i class="bi bi-arrow-clockwise"></i> Làm mới
+            </button>
+        </div>
+    </div>
+
+    <div id="error-message" class="error hidden m-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span></span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table" id="history-table">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">ID</th>
+                    <th>Nội dung Email</th>
+                    <th style="width: 130px;">Kết quả</th>
+                    <th style="width: 150px;">Độ tin cậy</th>
+                    <th style="width: 180px;">Thời gian</th>
+                    <th style="width: 90px; text-align: center;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+        </table>
+    </div>
+
+    <div id="history-empty" class="empty-state-box hidden">
+        <div class="empty-state-icon">
+            <i class="bi bi-inbox"></i>
+        </div>
+        <div class="empty-state-title">Chưa có lịch sử phân loại</div>
+        <p class="empty-state-desc">Hãy thực hiện kiểm tra phân loại email đầu tiên từ trang Phân loại.</p>
+    </div>
 </section>
 {% endblock %}
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/history.js') }}"></script>
 {% endblock %}

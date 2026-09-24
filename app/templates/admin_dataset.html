@@ -1,36 +1,150 @@
 {% extends "base.html" %}
+
+{% block title %}SpamGuard AI - Quản lý Dataset Email{% endblock %}
+
 {% block content %}
-<section class="card">
-    <h2>Quản lý Dataset</h2>
+<div class="page-header-block">
+    <div class="page-badge">
+        <i class="bi bi-database-fill-gear"></i>
+        <span>Kho Tri Thức Huấn Luyện</span>
+    </div>
+    <h1 class="page-title">Quản Lý Tập Dữ Liệu (Dataset)</h1>
+</div>
+
+<!-- Metrics Cards -->
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-card-top">
+            <span class="metric-card-caption">Tổng Số Mẫu</span>
+            <div class="metric-card-icon">
+                <i class="bi bi-collection-fill"></i>
+            </div>
+        </div>
+        <div class="metric-card-value" id="dataset-stat-total">0</div>
+        <div class="metric-card-sub">Mẫu dữ liệu trong kho</div>
+    </div>
+
+    <div class="metric-card spam-metric">
+        <div class="metric-card-top">
+            <span class="metric-card-caption">Mẫu Spam</span>
+            <div class="metric-card-icon">
+                <i class="bi bi-envelope-exclamation-fill"></i>
+            </div>
+        </div>
+        <div class="metric-card-value text-danger" id="dataset-stat-spam">0</div>
+        <div class="metric-card-sub">Dữ liệu gắn nhãn SPAM</div>
+    </div>
+
+    <div class="metric-card safe-metric">
+        <div class="metric-card-top">
+            <span class="metric-card-caption">Mẫu An Toàn (Ham)</span>
+            <div class="metric-card-icon">
+                <i class="bi bi-envelope-check-fill"></i>
+            </div>
+        </div>
+        <div class="metric-card-value text-success" id="dataset-stat-safe">0</div>
+        <div class="metric-card-sub">Dữ liệu gắn nhãn NOT_SPAM</div>
+    </div>
+</div>
+
+<!-- Form Card (Full width, consistent with all pages) -->
+<section class="card mb-4">
+    <div class="card-header-flex">
+        <div class="card-title-group">
+            <div class="card-icon-avatar">
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div>
+                <h2 class="card-title" id="form-title" style="font-size: 1.15rem;">Thêm Mẫu Huấn Luyện Mới</h2>
+            </div>
+        </div>
+        <span id="form-mode-badge" class="badge bg-primary-subtle text-primary border px-2 py-1">Thêm mới</span>
+    </div>
+
     <form id="dataset-form" class="form-grid">
         <input type="hidden" id="dataset-id">
-        <label for="dataset-email">Email</label>
-        <textarea id="dataset-email" rows="3" required></textarea>
-        <label for="dataset-label">Label</label>
-        <select id="dataset-label" required>
-            <option value="SPAM">SPAM</option>
-            <option value="NOT_SPAM">NOT_SPAM</option>
-        </select>
-        <div class="actions">
-            <button type="submit" id="dataset-save-btn">Thêm / Cập nhật</button>
-            <button type="button" id="dataset-reset-btn" class="secondary">Reset</button>
+
+        <div class="mb-3">
+            <label for="dataset-email">Nội dung Email mẫu: <span class="text-danger">*</span></label>
+            <textarea id="dataset-email" rows="4" placeholder="Nhập nội dung thư mẫu cần huấn luyện..."
+                required></textarea>
+        </div>
+
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label for="dataset-label">Nhãn phân loại (Label): <span class="text-danger">*</span></label>
+                <select id="dataset-label" required style="margin-bottom: 0;">
+                    <option value="SPAM">🚨 SPAM (Thư rác / Lừa đảo)</option>
+                    <option value="NOT_SPAM">🛡️ NOT_SPAM (Thư hợp lệ / An toàn)</option>
+                </select>
+            </div>
+            <div class="col-md-7">
+                <div class="d-flex gap-2">
+                    <button type="submit" id="dataset-save-btn" style="flex: 1;">
+                        <i class="bi bi-floppy2-fill"></i>
+                        <span id="save-btn-text">Thêm vào Dataset</span>
+                    </button>
+                    <button type="button" id="dataset-reset-btn" class="secondary" style="width: auto;">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        <span>Đặt lại</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </form>
-    <table class="table" id="dataset-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Email</th>
-                <th>Label</th>
-                <th>Created At</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="dataset-body"></tbody>
-    </table>
-    <p id="error-message" class="error hidden"></p>
+</section>
+
+<!-- Table Card (Full width, matching history.html) -->
+<section class="card" style="padding: 0; overflow: hidden;">
+    <div class="table-toolbar-bar">
+        <div class="table-search-box">
+            <i class="bi bi-search"></i>
+            <input type="search" id="dataset-search-input" placeholder="Tìm kiếm nội dung mẫu...">
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <select id="dataset-filter-select"
+                style="width: auto; height: 38px; margin-bottom: 0; font-size: 0.85rem; padding: 0.35rem 0.85rem;">
+                <option value="ALL">Tất cả nhãn</option>
+                <option value="SPAM">Chỉ nhãn SPAM</option>
+                <option value="NOT_SPAM">Chỉ nhãn NOT_SPAM</option>
+            </select>
+            <button type="button" id="dataset-refresh-btn" class="secondary"
+                style="height: 38px; padding: 0.35rem 0.85rem; font-size: 0.85rem;">
+                <i class="bi bi-arrow-clockwise"></i> Làm mới
+            </button>
+        </div>
+    </div>
+
+    <div id="error-message" class="error hidden m-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span></span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table" id="dataset-table">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">ID</th>
+                    <th>Nội dung Email</th>
+                    <th style="width: 140px;">Nhãn</th>
+                    <th style="width: 180px;">Ngày tạo</th>
+                    <th style="width: 120px; text-align: center;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="dataset-body"></tbody>
+        </table>
+    </div>
+
+    <div id="dataset-empty" class="empty-state-box hidden">
+        <div class="empty-state-icon">
+            <i class="bi bi-folder2-open"></i>
+        </div>
+        <div class="empty-state-title">Chưa có dữ liệu mẫu</div>
+        <p class="empty-state-desc">Hãy thêm các mẫu email huấn luyện đầu tiên bằng form phía trên.</p>
+    </div>
 </section>
 {% endblock %}
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/admin_dataset.js') }}"></script>
 {% endblock %}
