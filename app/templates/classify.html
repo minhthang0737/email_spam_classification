@@ -1,20 +1,110 @@
 {% extends "base.html" %}
+
+{% block title %}SpamGuard AI - Phân loại Email Tức thì{% endblock %}
+
 {% block content %}
+<div class="page-header-block">
+    <div class="page-badge">
+        <i class="bi bi-cpu-fill"></i>
+        <span>Phân tích Thông minh</span>
+    </div>
+    <h1 class="page-title">Kiểm Tra & Phân Loại Email</h1>
+</div>
+
 <section class="card">
-    <h2>Phân loại Email</h2>
-    <label for="email-input">Nội dung Email:</label>
-    <textarea id="email-input" rows="8" placeholder="Nhập nội dung email cần phân loại..."></textarea>
+    <div class="card-header-flex">
+        <div class="card-title-group">
+            <div class="card-icon-avatar">
+                <i class="bi bi-envelope-paper-fill"></i>
+            </div>
+            <div>
+                <h2 class="card-title">Nội dung Email cần phân tích</h2>
+            </div>
+        </div>
+        <div>
+            <button type="button" id="paste-btn" class="secondary" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">
+                <i class="bi bi-clipboard"></i> Dán từ bộ nhớ
+            </button>
+        </div>
+    </div>
+
+    <div class="textarea-container">
+        <label for="email-input" class="visually-hidden">Nội dung Email:</label>
+        <textarea id="email-input" rows="8"
+            placeholder="Dán hoặc nhập toàn bộ nội dung bức thư điện tử vào đây (tiêu đề, nội dung thư)..."></textarea>
+        <div class="textarea-meta-bar">
+            <span><i class="bi bi-info-circle"></i> Văn bản càng chi tiết thì dự đoán càng chính xác.</span>
+            <span>
+                <span id="word-count">0</span> từ &bull;
+                <span id="char-count">0</span> ký tự
+            </span>
+        </div>
+    </div>
+
     <div class="actions">
-        <button id="predict-btn" type="button">Phân loại Email</button>
-        <button id="clear-btn" type="button" class="secondary">Xóa</button>
+        <button id="predict-btn" type="button">
+            <i class="bi bi-lightning-charge-fill"></i>
+            <span id="predict-btn-text">Phân loại Email Ngay</span>
+        </button>
+        <button id="clear-btn" type="button" class="secondary">
+            <i class="bi bi-eraser-fill"></i>
+            <span>Làm sạch</span>
+        </button>
     </div>
+
+    <!-- Error Alert Message -->
+    <div id="error-message" class="error hidden" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span class="error-text"></span>
+    </div>
+
+    <!-- Prediction Result Panel -->
     <div id="result-panel" class="result-panel hidden">
-        <p><strong>Kết quả:</strong> <span id="result-label"></span></p>
-        <p><strong>Độ tin cậy:</strong> <span id="result-confidence"></span></p>
+        <div id="result-banner" class="result-banner">
+            <div id="result-icon-box" class="result-icon-large">
+                <i id="result-icon" class="bi bi-shield-check"></i>
+            </div>
+            <div class="result-banner-info">
+                <div class="result-banner-caption">Kết Luận Của AI</div>
+                <div class="result-badge-display">
+                    <span id="result-label">NOT_SPAM</span>
+                </div>
+                <div id="result-sub-desc" class="text-secondary small mt-1">
+                    Email an toàn và có nội dung đáng tin cậy.
+                </div>
+            </div>
+        </div>
+
+        <div class="confidence-meter-container">
+            <div class="confidence-header-row">
+                <span class="confidence-label-title">
+                    <i class="bi bi-speedometer2 me-1"></i> Mức độ tự tin của mô hình:
+                </span>
+                <span id="result-confidence" class="confidence-value-pill">0%</span>
+            </div>
+            <div class="progress-track-custom">
+                <div id="result-progress-bar" class="progress-fill-custom" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <div class="result-meta-grid">
+            <div class="result-meta-item">
+                <span class="result-meta-label">Mức độ rủi ro</span>
+                <span id="result-risk-level" class="result-meta-val">-</span>
+            </div>
+            <div class="result-meta-item">
+                <span class="result-meta-label">Khuyến nghị hành động</span>
+                <span id="result-recommendation" class="result-meta-val">-</span>
+            </div>
+            <div class="result-meta-item">
+                <span class="result-meta-label">Thời gian phân tích</span>
+                <span id="result-timestamp" class="result-meta-val">Vừa xong</span>
+            </div>
+        </div>
     </div>
-    <p id="error-message" class="error hidden"></p>
 </section>
 {% endblock %}
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/classify.js') }}"></script>
 {% endblock %}

@@ -1,25 +1,103 @@
 {% extends "base.html" %}
+
+{% block title %}SpamGuard AI - Quản trị Mô hình AI{% endblock %}
+
 {% block content %}
+<div class="page-header-block">
+    <div class="page-badge">
+        <i class="bi bi-cpu-fill"></i>
+        <span>Giám Sát Thuật Toán</span>
+    </div>
+    <h1 class="page-title">Thông Tin & Huấn Luyện Mô Hình AI</h1>
+</div>
+
+<!-- Model Action & Control Card -->
+<section class="card mb-4">
+    <div class="card-header-flex">
+        <div class="card-title-group">
+            <div class="card-icon-avatar">
+                <i class="bi bi-sliders"></i>
+            </div>
+            <div>
+                <h2 class="card-title" style="font-size: 1.15rem;">Bảng Điều Khiển Huấn Luyện</h2>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span id="model-status-badge" class="badge-pill-status safe">
+                <span class="status-dot-pulse"></span>
+                <span id="model-status-text">Đang sẵn sàng</span>
+            </span>
+        </div>
+    </div>
+
+    <p class="text-secondary small mb-3">
+        Khi bạn thêm các mẫu thư mới vào Dataset, hãy nhấn <strong>Huấn Luyện Lại Mô Hình</strong> để mô hình học các từ
+        khóa mới và cải thiện độ chính xác.
+    </p>
+
+    <div class="actions mb-0">
+        <button id="train-btn" type="button">
+            <i class="bi bi-play-circle-fill"></i>
+            <span id="train-btn-text">Huấn Luyện Lại (Train Model)</span>
+        </button>
+        <button id="refresh-btn" type="button" class="secondary">
+            <i class="bi bi-arrow-clockwise"></i>
+            <span>Làm mới thông số</span>
+        </button>
+    </div>
+
+    <!-- Success / Error alerts -->
+    <div id="train-message" class="success hidden mt-3" role="alert">
+        <i class="bi bi-check-circle-fill"></i>
+        <span></span>
+    </div>
+    <div id="error-message" class="error hidden mt-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span></span>
+    </div>
+</section>
+
+<!-- Model Configuration & Deployment Info -->
 <section class="card">
-    <h2>Thông tin Model</h2>
-    <div class="actions">
-        <button id="train-btn" type="button">Train Model</button>
-        <button id="refresh-btn" type="button" class="secondary">Làm mới</button>
+    <div class="card-header-flex">
+        <div class="card-title-group">
+            <div class="card-icon-avatar">
+                <i class="bi bi-info-circle-fill"></i>
+            </div>
+            <div>
+                <h2 class="card-title" style="font-size: 1.15rem;">Thông Tin Triển Khai & Phiên Bản</h2>
+            </div>
+        </div>
     </div>
-    <div id="model-info" class="model-info">
-        <p><strong>Model:</strong> <span id="model-name">-</span></p>
-        <p><strong>Version:</strong> <span id="model-version">-</span></p>
-        <p><strong>Accuracy:</strong> <span id="model-accuracy">-</span></p>
-        <p><strong>Precision:</strong> <span id="model-precision">-</span></p>
-        <p><strong>Recall:</strong> <span id="model-recall">-</span></p>
-        <p><strong>F1 Score:</strong> <span id="model-f1">-</span></p>
-        <p><strong>Trained At:</strong> <span id="model-trained">-</span></p>
-        <p><strong>Active:</strong> <span id="model-active">-</span></p>
+
+    <!-- Hidden compatibility div containing exact text bindings if needed -->
+    <div id="model-info" class="model-info-grid">
+        <div class="model-info-tile">
+            <div class="model-info-tile-label"><i class="bi bi-box-seam me-1"></i> Tên Thuật Toán (Model)</div>
+            <div class="model-info-tile-value" id="model-name">-</div>
+        </div>
+
+        <div class="model-info-tile">
+            <div class="model-info-tile-label"><i class="bi bi-tag-fill me-1"></i> Phiên Bản Hoạt Động (Version)</div>
+            <div class="model-info-tile-value font-monospace text-primary" id="model-version">-</div>
+        </div>
+
+        <div class="model-info-tile">
+            <div class="model-info-tile-label"><i class="bi bi-clock-history me-1"></i> Thời Điểm Huấn Luyện (Trained
+                At)</div>
+            <div class="model-info-tile-value" id="model-trained">-</div>
+        </div>
+
+        <div class="model-info-tile">
+            <div class="model-info-tile-label"><i class="bi bi-check2-circle me-1"></i> Trạng Thái Hoạt Động (Active)
+            </div>
+            <div class="model-info-tile-value" id="model-active">-</div>
+        </div>
     </div>
-    <p id="train-message" class="success hidden"></p>
-    <p id="error-message" class="error hidden"></p>
+
 </section>
 {% endblock %}
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/admin_model.js') }}"></script>
 {% endblock %}
