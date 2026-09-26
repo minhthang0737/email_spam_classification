@@ -10,32 +10,84 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/legacy.css') }}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark app-navbar">
+    {% set current_page = request.endpoint %}
+    {% set email_active = current_page in ['views.index', 'views.history'] %}
+    {% set data_active = current_page in ['views.admin_dataset', 'views.admin_model'] %}
+    {% set admin_active = current_page in ['views.admin_ip', 'views.admin_users'] %}
+    <nav class="navbar navbar-expand-lg navbar-dark app-navbar" aria-label="Điều hướng chính">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('views.index') }}">Hệ thống Phân loại Email Spam</a>
+            <a class="navbar-brand" href="{{ url_for('views.index') }}">
+                <span class="brand-mark" aria-hidden="true"><i class="bi bi-envelope-check"></i></span>
+                <span class="brand-copy">Email Spam<small>Hệ thống phân loại email</small></span>
+            </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Mở menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('views.index') }}">Phân loại</a></li>
-                    {% if g.user %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('views.history') }}">Lịch sử</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('views.settings') }}">Thiết lập</a></li>
-                    {% endif %}
+                <ul class="navbar-nav mr-auto app-nav-groups">
+                    <li class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle{% if email_active %} active{% endif %}" id="email-menu" type="button" data-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-envelope" aria-hidden="true"></i> Email
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="email-menu">
+                            <h6 class="dropdown-header">Xử lý email</h6>
+                            <a class="dropdown-item{% if current_page == 'views.index' %} active{% endif %}" href="{{ url_for('views.index') }}"{% if current_page == 'views.index' %} aria-current="page"{% endif %}><i class="bi bi-search" aria-hidden="true"></i> Phân loại email</a>
+                            {% if g.user %}
+                            <a class="dropdown-item{% if current_page == 'views.history' %} active{% endif %}" href="{{ url_for('views.history') }}"{% if current_page == 'views.history' %} aria-current="page"{% endif %}><i class="bi bi-clock-history" aria-hidden="true"></i> Lịch sử phân loại</a>
+                            {% endif %}
+                        </div>
+                    </li>
                     {% if g.user and g.user.role == 'admin' %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('views.admin_dataset') }}">Dataset</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('views.admin_model') }}">Mô hình</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('views.admin_ip') }}">Chặn IP / domain</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('views.admin_users') }}">Tài khoản</a></li>
+                    <li class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle{% if data_active %} active{% endif %}" id="data-menu" type="button" data-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-database" aria-hidden="true"></i> Dữ liệu &amp; mô hình
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="data-menu">
+                            <h6 class="dropdown-header">Huấn luyện &amp; đánh giá</h6>
+                            <a class="dropdown-item{% if current_page == 'views.admin_dataset' %} active{% endif %}" href="{{ url_for('views.admin_dataset') }}"{% if current_page == 'views.admin_dataset' %} aria-current="page"{% endif %}><i class="bi bi-table" aria-hidden="true"></i> Dataset huấn luyện</a>
+                            <a class="dropdown-item{% if current_page == 'views.admin_model' %} active{% endif %}" href="{{ url_for('views.admin_model') }}"{% if current_page == 'views.admin_model' %} aria-current="page"{% endif %}><i class="bi bi-bar-chart" aria-hidden="true"></i> Huấn luyện &amp; so sánh</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ url_for('views.settings', _anchor='demo-data') }}"><i class="bi bi-upload" aria-hidden="true"></i> Nhập dữ liệu demo</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle{% if admin_active %} active{% endif %}" id="admin-menu" type="button" data-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-shield-check" aria-hidden="true"></i> Quản trị
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="admin-menu">
+                            <h6 class="dropdown-header">Quản lý hệ thống</h6>
+                            <a class="dropdown-item{% if current_page == 'views.admin_ip' %} active{% endif %}" href="{{ url_for('views.admin_ip') }}"{% if current_page == 'views.admin_ip' %} aria-current="page"{% endif %}><i class="bi bi-shield-slash" aria-hidden="true"></i> Chặn IP / domain</a>
+                            <a class="dropdown-item{% if current_page == 'views.admin_users' %} active{% endif %}" href="{{ url_for('views.admin_users') }}"{% if current_page == 'views.admin_users' %} aria-current="page"{% endif %}><i class="bi bi-people" aria-hidden="true"></i> Quản lý tài khoản</a>
+                        </div>
+                    </li>
                     {% endif %}
                 </ul>
-                <ul class="navbar-nav">
+                <ul class="navbar-nav app-account-nav">
                     {% if g.user %}
-                    <li class="nav-item"><span class="navbar-text mr-3">{{ g.user.display_name or g.user.username }} ({{ g.user.role }})</span></li>
-                    <li class="nav-item"><form method="post" action="{{ url_for('views.logout') }}"><button class="btn btn-sm btn-outline-light" type="submit">Đăng xuất</button></form></li>
+                    <li class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle{% if current_page == 'views.settings' %} active{% endif %}" id="settings-menu" type="button" data-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-gear" aria-hidden="true"></i> Thiết lập
+                            <span class="account-name">{{ g.user.display_name or g.user.username }}</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="settings-menu">
+                            <div class="account-summary">
+                                <strong>{{ g.user.display_name or g.user.username }}</strong>
+                                <small>{{ 'Quản trị viên' if g.user.role == 'admin' else 'Nhân viên phân loại' }}</small>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ url_for('views.settings', _anchor='profile') }}"><i class="bi bi-person" aria-hidden="true"></i> Hồ sơ cá nhân</a>
+                            <a class="dropdown-item" href="{{ url_for('views.settings', _anchor='password') }}"><i class="bi bi-key" aria-hidden="true"></i> Đổi mật khẩu</a>
+                            {% if g.user.role == 'admin' %}
+                            <a class="dropdown-item" href="{{ url_for('views.settings', _anchor='demo-data') }}"><i class="bi bi-upload" aria-hidden="true"></i> Nhập dữ liệu demo</a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <form method="post" action="{{ url_for('views.logout') }}">
+                                <button class="dropdown-item logout-item" type="submit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Đăng xuất</button>
+                            </form>
+                        </div>
+                    </li>
                     {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('views.login') }}">Đăng nhập</a></li>
+                    <li class="nav-item"><a class="nav-link{% if current_page == 'views.login' %} active{% endif %}" href="{{ url_for('views.login') }}"{% if current_page == 'views.login' %} aria-current="page"{% endif %}><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Đăng nhập</a></li>
                     {% endif %}
                 </ul>
             </div>
