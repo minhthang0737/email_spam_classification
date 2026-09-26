@@ -1,4 +1,5 @@
 import re
+import unicodedata
 
 
 def preprocess_text(text: str) -> str:
@@ -18,8 +19,17 @@ def preprocess_text(text: str) -> str:
     # Chuẩn hóa whitespace
     text = re.sub(r"\s+", " ", text)
 
-    # Giữ chữ, số và một số ký tự thường gặp trong email
-    text = re.sub(r"[^a-z0-9$%@.!?\s]", " ", text)
+    # Keep letters and numbers from every language, including combining marks
+    # used by decomposed Unicode text, plus common email characters.
+    text = "".join(
+        char if (
+            char.isalnum()
+            or char.isspace()
+            or unicodedata.category(char).startswith("M")
+            or char in "$%@.!?"
+        ) else " "
+        for char in text
+    )
 
     # Chuẩn hóa whitespace lần cuối
     text = re.sub(r"\s+", " ", text).strip()

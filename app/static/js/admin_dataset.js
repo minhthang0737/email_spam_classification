@@ -24,6 +24,9 @@ const filterSelect = document.getElementById("dataset-filter-select");
 const refreshBtn = document.getElementById("dataset-refresh-btn");
 
 let allRecords = [];
+let currentPage = 1;
+let totalPages = 1;
+let searchTimer = null;
 
 function escapeHtml(text) {
     if (!text) return "";
@@ -39,20 +42,16 @@ function resetForm() {
     if (formTitle) formTitle.textContent = "Thêm Mẫu Mới";
     if (formModeBadge) {
         formModeBadge.textContent = "Thêm mới";
-        formModeBadge.className = "badge bg-primary-subtle text-primary border";
+        formModeBadge.className = "badge badge-primary";
     }
     if (saveBtnText) saveBtnText.textContent = "Thêm vào Dataset";
     hideError(errorMessage);
 }
 
-function updateStats(records) {
-    const total = records.length;
-    const spamCount = records.filter((r) => r.label === "SPAM").length;
-    const safeCount = records.filter((r) => r.label === "NOT_SPAM").length;
-
-    if (statTotal) statTotal.textContent = total;
-    if (statSpam) statSpam.textContent = spamCount;
-    if (statSafe) statSafe.textContent = safeCount;
+function updateStats(pagination) {
+    if (statTotal) statTotal.textContent = Number(pagination.total).toLocaleString("vi-VN");
+    if (statSpam) statSpam.textContent = Number(pagination.spam).toLocaleString("vi-VN");
+    if (statSafe) statSafe.textContent = Number(pagination.notSpam).toLocaleString("vi-VN");
 }
 
 function renderTableRows(records) {
@@ -108,7 +107,7 @@ function renderTableRows(records) {
             if (formTitle) formTitle.textContent = `Sửa Mẫu #${record.id}`;
             if (formModeBadge) {
                 formModeBadge.textContent = `Đang sửa #${record.id}`;
-                formModeBadge.className = "badge bg-warning-subtle text-warning-emphasis border border-warning";
+                formModeBadge.className = "badge badge-warning text-dark";
             }
             if (saveBtnText) saveBtnText.textContent = "Lưu Thay Đổi";
 
@@ -136,27 +135,21 @@ function renderTableRows(records) {
     });
 }
 
-function applyFilters() {
-    const query = (searchInput ? searchInput.value : "").trim().toLowerCase();
-    const filter = filterSelect ? filterSelect.value : "ALL";
-
-    const filtered = allRecords.filter((record) => {
-        const matchesQuery = !query || (record.email && record.email.toLowerCase().includes(query));
-        const matchesFilter = filter === "ALL" || record.label === filter;
-        return matchesQuery && matchesFilter;
-    });
-
-    renderTableRows(filtered);
-}
-
 async function loadDataset() {
     hideError(errorMessage);
 
     try {
-        const data = await apiRequest("/api/dataset");
+        const params = new URLSearchParams({page:currentPage,per_page:50,label:filterSelect?.value || "ALL",search:searchInput?.value.trim() || ""});
+        const data = await apiRequest(`/api/dataset?${params}`);
         allRecords = data.data || [];
-        updateStats(allRecords);
-        applyFilters();
+        currentPage = data.pagination.page;
+        totalPages = Math.max(data.pagination.pages, 1);
+        updateStats(data.pagination);
+        renderTableRows(allRecords);
+        document.getElementById("dataset-page-number").textContent = `${currentPage} / ${totalPages}`;
+        document.getElementById("dataset-page-summary").textContent = `Hiển thị ${allRecords.length ? ((currentPage-1)*50+1).toLocaleString("vi-VN") : 0}–${((currentPage-1)*50+allRecords.length).toLocaleString("vi-VN")} trong ${Number(data.pagination.total).toLocaleString("vi-VN")} email`;
+        document.getElementById("dataset-prev-page").disabled = currentPage <= 1;
+        document.getElementById("dataset-next-page").disabled = currentPage >= totalPages;
     } catch (error) {
         showError(errorMessage, error.message);
     }
@@ -201,12 +194,15 @@ datasetForm.addEventListener("submit", async (event) => {
 resetBtn.addEventListener("click", resetForm);
 
 if (searchInput) {
-    searchInput.addEventListener("input", applyFilters);
+    searchInput.addEventListener("input", () => {clearTimeout(searchTimer);searchTimer=setTimeout(()=>{currentPage=1;loadDataset();},250);});
 }
 
 if (filterSelect) {
-    filterSelect.addEventListener("change", applyFilters);
+    filterSelect.addEventListener("change", () => {currentPage=1;loadDataset();});
 }
+
+document.getElementById("dataset-prev-page").addEventListener("click",()=>{if(currentPage>1){currentPage--;loadDataset();}});
+document.getElementById("dataset-next-page").addEventListener("click",()=>{if(currentPage<totalPages){currentPage++;loadDataset();}});
 
 if (refreshBtn) {
     refreshBtn.addEventListener("click", async () => {
@@ -216,5 +212,16 @@ if (refreshBtn) {
         if (icon) icon.classList.remove("spin-icon");
     });
 }
+
+document.getElementById("dataset-seed-100k-btn").addEventListener("click", async () => {
+    const button = document.getElementById("dataset-seed-100k-btn");
+    if (!confirm("Nạp bộ dữ liệu gồm 100.000 email giả lập cân bằng SPAM / NOT_SPAM vào dataset? Email đã có sẽ được bỏ qua.")) return;
+    hideError(errorMessage); button.disabled = true; button.textContent = "Đang nạp 100.000 email...";
+    try {
+        const result = await apiRequest("/api/dataset/seed-large", {method:"POST"});
+        alert(result.message); currentPage=1; await loadDataset();
+    } catch (error) {showError(errorMessage,error.message);}
+    finally {button.disabled=false;button.textContent="Tạo thêm 100.000 email demo";}
+});
 
 loadDataset();

@@ -41,3 +41,35 @@ def test_train_with_insufficient_dataset(client, app):
 
     response = client.post("/api/model/train")
     assert response.status_code == 400
+
+
+def test_compare_models_api(client, app):
+    with app.app_context():
+        from app import db
+        seed_dataset(db)
+
+    trained = client.post("/api/model/train")
+    assert trained.status_code == 200
+    active_version = trained.get_json()["version"]
+
+    response = client.post("/api/model/compare")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["trainingSamples"] + data["testSamples"] == 6
+    assert [model["model"] for model in data["models"]] == [
+        "MultinomialNB", "LogisticRegression"
+    ]
+    assert all("confusionMatrix" in model for model in data["models"])
+    assert client.get("/api/model").get_json()["version"] == active_version
+
+
+def test_compare_models_api_rejects_impossible_split(client, app):
+    with app.app_context():
+        from app import db
+        db.session.add_all([
+            EmailDataset(email_content="spam one", label="SPAM"),
+            EmailDataset(email_content="ham one", label="NOT_SPAM"),
+        ])
+        db.session.commit()
+    response = client.post("/api/model/compare")
+    assert response.status_code == 400

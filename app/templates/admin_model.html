@@ -44,6 +44,10 @@
             <i class="bi bi-arrow-clockwise"></i>
             <span>Làm mới thông số</span>
         </button>
+        <button id="compare-btn" type="button" class="secondary">
+            <i class="bi bi-bar-chart-fill"></i>
+            <span>So sánh mô hình</span>
+        </button>
     </div>
 
     <!-- Success / Error alerts -->
@@ -94,7 +98,17 @@
             <div class="model-info-tile-value" id="model-active">-</div>
         </div>
     </div>
-
+    <div id="comparison-panel" class="hidden mt-4">
+        <h3>So sánh trên cùng tập kiểm tra</h3>
+        <p id="comparison-method" class="muted"></p>
+        <div class="table-responsive">
+            <table class="table">
+                <thead><tr><th>Mô hình</th><th>Accuracy</th><th>Precision (SPAM)</th><th>Recall (SPAM)</th><th>F1 (SPAM)</th><th>Confusion matrix</th></tr></thead>
+                <tbody id="comparison-body"></tbody>
+            </table>
+        </div>
+        <p class="muted">Chỉ số phụ thuộc kích thước và cách chia dataset; kết quả là tham khảo.</p>
+    </div>
 </section>
 {% endblock %}
 
