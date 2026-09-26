@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Quản lý tài khoản{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Quản lý tài khoản</h1>
+<div class="alert alert-warning">Không có chức năng tự đăng ký. Chỉ quản trị viên đã đăng nhập được tạo tài khoản; tài khoản dùng vai trò admin hoặc analyst.</div>
+<section class="card card-body mb-4">
+    <h2 class="h5">Tạo tài khoản</h2>
+    <form id="user-form" class="form-row align-items-end">
+        <div class="form-group col-md-4"><label for="new-username">Tên đăng nhập</label><input id="new-username" class="form-control" required minlength="3" maxlength="80"></div>
+        <div class="form-group col-md-4"><label for="new-password">Mật khẩu (ít nhất 8 ký tự)</label><input id="new-password" class="form-control" type="password" required minlength="8"></div>
+        <div class="form-group col-md-2"><label for="new-role">Vai trò</label><select id="new-role" class="form-control"><option value="analyst">Analyst</option><option value="admin">Admin</option></select></div>
+        <div class="form-group col-md-2"><button class="btn btn-primary btn-block" type="submit">Tạo</button></div>
+    </form>
+    <div id="users-error" class="alert alert-danger hidden mb-0"></div>
+</section>
+<section class="card card-body">
+    <h2 class="h5">Danh sách tài khoản</h2>
+    <div class="table-responsive"><table class="table table-striped table-sm"><thead class="thead-light"><tr><th>Tên</th><th>Vai trò</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="users-body"></tbody></table></div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/admin_users.js') }}"></script>{% endblock %}

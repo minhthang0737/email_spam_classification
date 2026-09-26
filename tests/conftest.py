@@ -17,4 +17,14 @@ def app():
 
 @pytest.fixture
 def client(app):
-    return app.test_client()
+    from app import db
+    from app.models.user import User
+
+    with app.app_context():
+        user = User(username="test-admin", role="admin")
+        user.set_password("test-password-123")
+        db.session.add(user)
+        db.session.commit()
+    client = app.test_client()
+    client.post("/login", data={"username": "test-admin", "password": "test-password-123"})
+    return client

@@ -12,5 +12,17 @@ def test_preprocess_keeps_email_chars():
     assert "$" in result
 
 
+def test_preprocess_preserves_vietnamese_diacritics():
+    result = preprocess_text("  Khuyến mãi! Tài khoản của bạn  ")
+    assert result == "khuyến mãi! tài khoản của bạn"
+
+
+def test_preprocess_preserves_decomposed_vietnamese_diacritics():
+    import unicodedata
+
+    decomposed = unicodedata.normalize("NFD", "thư rác")
+    assert preprocess_text(decomposed) == decomposed.lower()
+
+
 def test_preprocess_none_returns_empty():
     assert preprocess_text(None) == ""

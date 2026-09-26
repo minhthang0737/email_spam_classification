@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify
 
 from app.models.email_dataset import EmailDataset
-from app.ml.trainer import train_model
+from app.ml.trainer import compare_models, train_model
 from app.models.model_information import ModelInformation
 from app.services.model_service import save_model_information
 from app.utils.errors import conflict_error, not_found_error, validation_error
+from app.auth import login_required
 
 model_bp = Blueprint(
     "model",
@@ -13,7 +14,35 @@ model_bp = Blueprint(
 )
 
 
+@model_bp.post("/compare")
+@login_required("admin")
+def compare_models_endpoint():
+    dataset = EmailDataset.query.all()
+    try:
+        result = compare_models(dataset)
+    except ValueError as exc:
+        return validation_error(str(exc))
+
+    return jsonify({
+        "evaluationMethod": result["evaluation_method"],
+        "trainingSamples": result["training_samples"],
+        "testSamples": result["test_samples"],
+        "models": [
+            {
+                "model": model["model_name"],
+                "accuracy": model["accuracy"],
+                "precision": model["precision"],
+                "recall": model["recall"],
+                "f1Score": model["f1_score"],
+                "confusionMatrix": model["confusion_matrix"],
+            }
+            for model in result["models"]
+        ],
+    }), 200
+
+
 @model_bp.route("", methods=["GET"])
+@login_required("admin")
 def get_model_information():
     model = ModelInformation.query.filter_by(is_active=True).first()
 
@@ -35,6 +64,7 @@ def get_model_information():
 
 
 @model_bp.route("/train", methods=["POST"])
+@login_required("admin")
 def train_model_endpoint():
     dataset = EmailDataset.query.all()
 

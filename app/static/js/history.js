@@ -59,7 +59,7 @@ function renderTableRows(records) {
         const confidenceBarHtml = percentVal != null
             ? `<div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="small fw-bold">${percentVal}%</span>
+                    <span class="small font-weight-bold">${percentVal}%</span>
                 </div>
                 <div class="progress" style="height: 6px; background-color: #e2e8f0; border-radius: 99px;">
                     <div class="progress-bar ${isSpam ? 'bg-danger' : 'bg-success'}" style="width: ${percentVal}%; border-radius: 99px;"></div>
@@ -73,6 +73,16 @@ function renderTableRows(records) {
             <td>${badgeHtml}</td>
             <td>${confidenceBarHtml}</td>
             <td class="text-secondary small"><i class="bi bi-calendar3 me-1"></i>${formatDate(record.createdAt)}</td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <select class="form-control form-control-sm feedback-label" aria-label="Nhãn đúng cho email ${record.id}">
+                        <option value="SPAM" ${isSpam ? "selected" : ""}>SPAM</option>
+                        <option value="NOT_SPAM" ${!isSpam ? "selected" : ""}>NOT_SPAM</option>
+                    </select>
+                    <button type="button" class="btn btn-sm btn-outline-primary feedback-save ml-2" data-id="${record.id}">Lưu nhãn</button>
+                </div>
+                <small class="feedback-status text-muted"></small>
+            </td>
             <td style="text-align: center;">
                 <button type="button" class="danger table-action-btn" data-id="${record.id}" title="Xóa bản ghi này">
                     <i class="bi bi-trash3-fill"></i>
@@ -83,7 +93,7 @@ function renderTableRows(records) {
     });
 
     // Attach delete listeners
-    historyBody.querySelectorAll("button[data-id]").forEach((button) => {
+    historyBody.querySelectorAll("button.table-action-btn[data-id]").forEach((button) => {
         button.addEventListener("click", async () => {
             const id = button.getAttribute("data-id");
             if (!confirm(`Bạn có chắc chắn muốn xóa bản ghi lịch sử #${id}?`)) {
@@ -99,6 +109,25 @@ function renderTableRows(records) {
             }
         });
     });
+
+    historyBody.querySelectorAll("button.feedback-save").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const row = button.closest("tr");
+            const label = row.querySelector(".feedback-label").value;
+            const status = row.querySelector(".feedback-status");
+            button.disabled = true;
+            try {
+                const result = await apiRequest(`/api/classifications/${button.dataset.id}/feedback`, {
+                    method: "POST", body: JSON.stringify({ label }),
+                });
+                status.textContent = result.action === "unchanged" ? "Đã có nhãn này" : result.action === "updated" ? "Đã sửa nhãn trong dataset" : "Đã thêm vào dataset";
+                status.className = "feedback-status text-success";
+            } catch (error) {
+                showError(errorMessage, error.message);
+            } finally { button.disabled = false; }
+        });
+    });
+
 }
 
 function applyFilters() {

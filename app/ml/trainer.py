@@ -12,6 +12,7 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
 
 from app.config import Config
 from app.ml.preprocessing import preprocess_text
@@ -21,20 +22,7 @@ def _model_dir() -> Path:
     return Path(Config.MODEL_DIR)
 
 
-def train_model(dataset):
-    """
-    Train model từ dataset.
-
-    dataset:
-        List các object có:
-        - email_content
-        - label
-    """
-
-    # ==========================================
-    # TASK-011: Chuẩn hóa dataset
-    # ==========================================
-
+def _prepare_dataset(dataset):
     texts = []
     labels = []
 
@@ -62,78 +50,77 @@ def train_model(dataset):
             "Dataset must contain both SPAM and NOT_SPAM labels."
         )
 
-    # ==========================================
-    # TASK-015: Train/Test Split
-    # ==========================================
+    return texts, labels
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        texts,
-        labels,
-        test_size=0.2,
-        random_state=42,
-        stratify=labels
-    )
 
-    # ==========================================
-    # TASK-013: TF-IDF
-    # ==========================================
+def _split_and_vectorize(texts, labels):
+    try:
+        X_train, X_test, y_train, y_test = train_test_split(
+            texts,
+            labels,
+            test_size=0.2,
+            random_state=42,
+            stratify=labels
+        )
+    except ValueError as exc:
+        raise ValueError(
+            "Dataset is too small for a stratified 80/20 split; add examples "
+            "for both labels and retry."
+        ) from exc
 
     vectorizer = TfidfVectorizer()
-
     X_train_tfidf = vectorizer.fit_transform(X_train)
-
     X_test_tfidf = vectorizer.transform(X_test)
+    return X_train_tfidf, X_test_tfidf, y_train, y_test, vectorizer
 
-    # ==========================================
-    # TASK-014: Classification Algorithm
-    # ==========================================
 
+def _evaluate(model, X_train, X_test, y_train, y_test):
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    return {
+        "accuracy": accuracy_score(y_test, y_pred),
+        "precision": precision_score(
+            y_test, y_pred, pos_label="SPAM", zero_division=0
+        ),
+        "recall": recall_score(
+            y_test, y_pred, pos_label="SPAM", zero_division=0
+        ),
+        "f1_score": f1_score(
+            y_test, y_pred, pos_label="SPAM", zero_division=0
+        ),
+        "confusion_matrix": confusion_matrix(
+            y_test, y_pred, labels=["SPAM", "NOT_SPAM"]
+        ).tolist(),
+    }
+
+
+def compare_models(dataset):
+    """Evaluate the baseline and Logistic Regression on the same holdout."""
+    texts, labels = _prepare_dataset(dataset)
+    X_train, X_test, y_train, y_test, _ = _split_and_vectorize(texts, labels)
+
+    results = []
+    for name, model in (
+        ("MultinomialNB", MultinomialNB()),
+        ("LogisticRegression", LogisticRegression(max_iter=1000, random_state=42)),
+    ):
+        metrics = _evaluate(model, X_train, X_test, y_train, y_test)
+        results.append({"model_name": name, **metrics})
+
+    return {
+        "evaluation_method": "Stratified 80/20 holdout (random_state=42)",
+        "training_samples": len(y_train),
+        "test_samples": len(y_test),
+        "models": results,
+    }
+
+
+def train_model(dataset):
+    """Train and persist the MultinomialNB model used for predictions."""
+    texts, labels = _prepare_dataset(dataset)
+    X_train, X_test, y_train, y_test, vectorizer = _split_and_vectorize(texts, labels)
     model = MultinomialNB()
-
-    model.fit(
-        X_train_tfidf,
-        y_train
-    )
-
-    # ==========================================
-    # TASK-016: Evaluation
-    # ==========================================
-
-    y_pred = model.predict(
-        X_test_tfidf
-    )
-
-    accuracy = accuracy_score(
-        y_test,
-        y_pred
-    )
-
-    precision = precision_score(
-        y_test,
-        y_pred,
-        pos_label="SPAM",
-        zero_division=0
-    )
-
-    recall = recall_score(
-        y_test,
-        y_pred,
-        pos_label="SPAM",
-        zero_division=0
-    )
-
-    f1 = f1_score(
-        y_test,
-        y_pred,
-        pos_label="SPAM",
-        zero_division=0
-    )
-
-    confusion = confusion_matrix(
-        y_test,
-        y_pred,
-        labels=["SPAM", "NOT_SPAM"]
-    )
+    metrics = _evaluate(model, X_train, X_test, y_train, y_test)
 
     # ==========================================
     # TASK-017: Save Model
@@ -158,11 +145,11 @@ def train_model(dataset):
     return {
         "model_name": "MultinomialNB",
         "model_version": model_version,
-        "accuracy": accuracy,
-        "precision": precision,
-        "recall": recall,
-        "f1_score": f1,
-        "confusion_matrix": confusion.tolist(),
+        "accuracy": metrics["accuracy"],
+        "precision": metrics["precision"],
+        "recall": metrics["recall"],
+        "f1_score": metrics["f1_score"],
+        "confusion_matrix": metrics["confusion_matrix"],
         "trained_at": datetime.now(),
         "model_path": str(model_path)
     }

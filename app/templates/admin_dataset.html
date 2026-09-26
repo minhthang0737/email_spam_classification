@@ -58,7 +58,7 @@
                 <h2 class="card-title" id="form-title" style="font-size: 1.15rem;">Thêm Mẫu Huấn Luyện Mới</h2>
             </div>
         </div>
-        <span id="form-mode-badge" class="badge bg-primary-subtle text-primary border px-2 py-1">Thêm mới</span>
+        <span id="form-mode-badge" class="badge badge-primary px-2 py-1">Thêm mới</span>
     </div>
 
     <form id="dataset-form" class="form-grid">
@@ -102,6 +102,9 @@
             <input type="search" id="dataset-search-input" placeholder="Tìm kiếm nội dung mẫu...">
         </div>
         <div class="d-flex align-items-center gap-2">
+            <button type="button" id="dataset-seed-100k-btn" class="btn btn-warning"
+                title="Nạp bộ email giả lập từ file seed 100k">Tạo thêm 100.000 email demo</button>
+            <a class="btn btn-outline-secondary" href="/api/dataset/seed-file">Tải file seed</a>
             <select id="dataset-filter-select"
                 style="width: auto; height: 38px; margin-bottom: 0; font-size: 0.85rem; padding: 0.35rem 0.85rem;">
                 <option value="ALL">Tất cả nhãn</option>
@@ -112,7 +115,15 @@
                 style="height: 38px; padding: 0.35rem 0.85rem; font-size: 0.85rem;">
                 <i class="bi bi-arrow-clockwise"></i> Làm mới
             </button>
-        </div>
+</div>
+<div class="alert alert-warning py-2">Bộ seed là email tổng hợp, cân bằng 50/50 SPAM và NOT_SPAM; nạp vào dataset sẽ không tự động gửi email hoặc train mô hình. Có thể tải file seed để dùng cùng project.</div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+        <small class="text-muted" id="dataset-page-summary">Đang tải dữ liệu...</small>
+        <div><button type="button" class="btn btn-sm btn-outline-secondary" id="dataset-prev-page">Trước</button>
+            <span class="mx-2 small" id="dataset-page-number">1 / 1</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="dataset-next-page">Sau</button></div>
     </div>
 
     <div id="error-message" class="error hidden m-3" role="alert">
